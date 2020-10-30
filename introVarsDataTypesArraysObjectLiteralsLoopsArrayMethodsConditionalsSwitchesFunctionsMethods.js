@@ -122,7 +122,6 @@
 //   console.log(todo.text);
 // }
 
-
 // // High Order Array Methods forEach, map, filter
 // // forEach
 // todos.forEach(function (todo) {
@@ -153,7 +152,6 @@
 
 // console.log(todoCompleted);
 
-
 // // Conditionals
 // const x = 6;
 // const y = 11;
@@ -168,7 +166,6 @@
 // const color = x > 10 ? 'red' : 'blue';
 
 // console.log(color);
-
 
 // // Switches
 // const x = 10;
@@ -187,7 +184,6 @@
 //     break;
 // }
 
-
 // // Functions
 // function addNums(num1 = 1, num2 = 1) {
 //   return num1 + num2;
@@ -205,17 +201,17 @@ console.log(addNums(7));
 // Methods
 
 const todo = {
-  add: function () {
-    console.log('Add todo..');
+  add: function() {
+    console.log("Add todo..");
   },
-  edit: function (id) {
+  edit: function(id) {
     console.log(`Edit todo ${id}`);
   }
-}
+};
 
-todo.delete = function (id) {
-  console.log(`Delete todo ${id}`)
-}
+todo.delete = function(id) {
+  console.log(`Delete todo ${id}`);
+};
 
 todo.add();
 todo.edit(5);
