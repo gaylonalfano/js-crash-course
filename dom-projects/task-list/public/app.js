@@ -2,9 +2,11 @@
 // Define UI variables that we'll use
 const formElement = document.querySelector("#task-form");
 const taskList = document.querySelector(".collection");
-const clearBtn = document.querySelector(".clear-tasks btn black");
+const clearBtn = document.querySelector(".clear-tasks.btn.black");
 const filterInput = document.getElementById("filter");
 const taskInput = document.querySelector("#task");
+
+console.log(clearBtn);
 
 // Call a function to load all event listeners
 loadEventListeners();
@@ -15,6 +17,8 @@ function loadEventListeners() {
   formElement.addEventListener("submit", addTask);
   // Remove task event to taskList (for event delegation to <li> children)
   taskList.addEventListener("click", removeTask);
+  // Clear all tasks event for clearBtn
+  clearBtn.addEventListener("click", clearTasks);
 }
 
 // ====== ADD TASK EVENT HANDLER
@@ -72,6 +76,31 @@ function removeTask(event) {
     if (confirm("Are you sure?")) {
       // Remove the entire <li> element (parent of parent; <i> <a> <li> <ul>)
       event.target.parentElement.parentElement.remove();
+    }
+  }
+}
+
+// ====== CLEAR ALL TASKS EVENT HANDLER
+function clearTasks() {
+  if (confirm("Are you sure?")) {
+    console.log(taskList.children); // HTMLCollection
+    console.log(taskList.childElementCount); // 2
+    // Remove all <li> elements from <ul> (taskList)
+    // NOTE Two approaches: 1. set innerHTML = "" or use while loop w/ firstChild
+    // === Set innerHTML = ""
+    // NOTE 3 elements took 1313ms
+    // taskList.innerHTML = "";
+
+    // === Use while loop w/ removeChild(taskList.firstChild) (faster actually)
+    // NOTE 3 elements took 1747ms
+    // while (taskList.childElementCount > 0) {
+    //   taskList.removeChild(taskList.firstElementChild);
+    // }
+
+    // === Use while loop w/ removeChild(taskList.firstChild) (faster actually)
+    // NOTE 3 elements took 1577ms
+    while (taskList.firstChild) {
+      taskList.removeChild(taskList.firstChild);
     }
   }
 }
