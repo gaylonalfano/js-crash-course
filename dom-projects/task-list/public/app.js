@@ -19,6 +19,8 @@ function loadEventListeners() {
   taskList.addEventListener("click", removeTask);
   // Clear all tasks event for clearBtn
   clearBtn.addEventListener("click", clearTasks);
+  // Filter tasks event for filterInput
+  filterInput.addEventListener("keyup", filterTasks);
 }
 
 // ====== ADD TASK EVENT HANDLER
@@ -26,8 +28,10 @@ function addTask(event) {
   // === Check there is actually a new task input value
   if (taskInput.value === "") {
     alert("Add a task");
+    // FIXME Will still add an empty <li> to the <ul> taskList
+    // NOTE Use 'return' to stop function!
+    return;
   }
-
   // === Store the new task that was entered
   const newTask = taskInput.value;
   console.log(`New Task: ${newTask}`);
@@ -103,4 +107,43 @@ function clearTasks() {
       taskList.removeChild(taskList.firstChild);
     }
   }
+}
+
+// ====== FILTER TASKS EVENT HANDLER
+function filterTasks(event) {
+  // Let's get the filter input value
+  // TODO? Any reason not to use filterText instead of e.target.value?
+  const filterText = filterInput.value.toLowerCase();
+  console.log(filterText);
+  // const text = event.target.value.toLowerCase();
+  // console.log(text);
+
+  // ====== MY ATTEMPT ======
+  // Retrieve all <li> elements using class '.collection-item'
+  // NOTE NodeList (querySelectorAll()) is like an Array. HTMLCollection
+  // HTMLCollection (getElementByClass) has to be first converted to Array.
+  taskList.querySelectorAll(".collection-item").forEach((task) => {
+    // Target the CHILD's task text content
+    const taskContent = task.firstChild.textContent.toLowerCase();
+
+    // Check that it contains the filterText.
+    // If so, continue/leave the <li> element. Else, hide the <li>
+    // FIXME For some reason the first letter for filter doesn't work
+    // NOTE Turns out I needed taskContent.toLowerCase()!
+    if (!taskContent.includes(filterText)) {
+      task.hidden = true;
+    } else {
+      task.hidden = false;
+    }
+  });
+  // ====== BRAD'S ATTEMPT ======
+  // document.querySelectorAll(".collection-item").forEach(function (task) {
+  //   const item = task.firstChild.textContent;
+  //   // Check if there is a match with filter input text
+  //   if (item.toLowerCase().indexOf(filterText) !== -1) {
+  //     task.style.display = "block";
+  //   } else {
+  //     task.style.display = "none";
+  //   }
+  // });
 }
