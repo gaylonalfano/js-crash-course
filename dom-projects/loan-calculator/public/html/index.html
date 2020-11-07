@@ -8,6 +8,12 @@
       rel="stylesheet"
       href="https://cdn.jsdelivr.net/npm/@tailwindcss/ui@latest/dist/tailwind-ui.min.css"
     />
+    <!-- Hide results section until button loading is finished -->
+    <style>
+      #calculated-results {
+        display: none;
+      }
+    </style>
   </head>
   <body>
     <!--
@@ -21,7 +27,7 @@
       <div class="sm:mx-auto sm:w-full sm:max-w-md">
         <img
           class="mx-auto h-12 w-auto"
-          src="https://tailwindui.com/img/logos/workflow-mark-on-white.svg"
+          src="https://tailwindui.com/img/logos/v1/workflow-mark-on-white.svg"
           alt="Workflow"
         />
         <h2
@@ -45,21 +51,44 @@
       <div class="mt-8 sm:mx-auto sm:w-full sm:max-w-md">
         <div class="bg-white py-8 px-4 shadow sm:rounded-lg sm:px-10">
           <form id="loan-form">
+            <!--
+              Tailwind UI components require Tailwind CSS v1.8 and the @tailwindcss/ui plugin.
+              Read the documentation to get started: https://tailwindui.com/documentation
+            -->
             <div>
               <label
                 for="loan-amount"
                 class="block text-sm font-medium leading-5 text-gray-700"
+                >Loan Amount</label
               >
-                Loan Amount
-              </label>
-              <div class="mt-1 rounded-md shadow-sm">
-                <!-- Other input options with icons: https://www.creative-tim.com/learning-lab/tailwind-starter-kit/documentation/css/inputs/regular -->
+              <div class="mt-1 relative rounded-md shadow-sm">
+                <div
+                  class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none"
+                >
+                  <span class="text-gray-500 sm:text-sm sm:leading-5">
+                    $
+                  </span>
+                </div>
                 <input
                   id="loan-amount"
                   type="number"
                   required
-                  class="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md placeholder-gray-400 focus:outline-none focus:shadow-outline-blue focus:border-blue-300 transition duration-150 ease-in-out sm:text-sm sm:leading-5"
+                  class="form-input block w-full pl-7 pr-12 sm:text-sm sm:leading-5"
+                  placeholder="0.00"
+                  min="0"
+                  max="1000000"
+                  aria-describedby="loan-amount-currency"
                 />
+                <div
+                  class="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none"
+                >
+                  <span
+                    class="text-gray-500 sm:text-sm sm:leading-5"
+                    id="loan-currency"
+                  >
+                    USD
+                  </span>
+                </div>
               </div>
             </div>
 
@@ -67,15 +96,25 @@
               <label
                 for="annual-interest"
                 class="block text-sm font-medium leading-5 text-gray-700"
+                >Annual Interest</label
               >
-                Annual Interest
-              </label>
-              <div class="mt-1 rounded-md shadow-sm">
+              <div class="mt-1 relative rounded-md shadow-sm">
+                <div
+                  class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none"
+                >
+                  <span class="text-gray-500 sm:text-sm sm:leading-5">
+                    %
+                  </span>
+                </div>
                 <input
                   id="annual-interest"
                   type="number"
                   required
-                  class="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md placeholder-gray-400 focus:outline-none focus:shadow-outline-blue focus:border-blue-300 transition duration-150 ease-in-out sm:text-sm sm:leading-5"
+                  class="form-input block w-full pl-7 pr-12 sm:text-sm sm:leading-5"
+                  placeholder="0.00"
+                  min="0"
+                  max="100"
+                  aria-describedby="annual-interest-percentage"
                 />
               </div>
             </div>
@@ -84,18 +123,29 @@
               <label
                 for="years-to-repay"
                 class="block text-sm font-medium leading-5 text-gray-700"
+                >Years To Repay</label
               >
-                Years To Repay
-              </label>
-              <div class="mt-1 rounded-md shadow-sm">
+              <div class="mt-1 relative rounded-md shadow-sm">
+                <div
+                  class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none"
+                >
+                  <span class="text-gray-500 sm:text-sm sm:leading-5">
+                    #
+                  </span>
+                </div>
                 <input
                   id="years-to-repay"
                   type="number"
                   required
-                  class="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md placeholder-gray-400 focus:outline-none focus:shadow-outline-blue focus:border-blue-300 transition duration-150 ease-in-out sm:text-sm sm:leading-5"
+                  class="form-input block w-full pl-7 pr-12 sm:text-sm sm:leading-5"
+                  placeholder="1"
+                  min="0"
+                  max="30"
+                  aria-describedby="years-to-repay"
                 />
               </div>
             </div>
+
             <!-- <div class="mt-6 flex items-center justify-between"> -->
             <!--   <div class="flex items-center"> -->
             <!--     <input -->
@@ -126,8 +176,16 @@
                 <button
                   id="calculate-btn"
                   type="submit"
-                  class="w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-500 focus:outline-none focus:border-indigo-700 focus:shadow-outline-indigo active:bg-indigo-700 transition duration-150 ease-in-out"
+                  class="w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-500 focus:outline-none focus:border-indigo-700 focus:shadow-outline-indigo active:bg-indigo-700 transition duration-100 ease-in-out"
                 >
+                  <!-- <svg -->
+                  <!--   class="animate-spin h-5 w-5 mr-3 ease duration-300" -->
+                  <!--   viewBox="0 0 24 24" -->
+                  <!-- > -->
+                  <!--   <!-1- MDN viewBox SVG: https://developer.mozilla.org/en-US/docs/Web/SVG/Attribute/viewBox -1-> -->
+                  <!--   <!-1- <rect x="0" y="0" width="100%" height="100%" /> -1-> -->
+                  <!--   <circle cx="80%" cy="50%" r="3" fill="white" /> -->
+                  <!-- </svg> -->
                   Calculate
                 </button>
               </span>
@@ -135,75 +193,77 @@
           </form>
 
           <!-- LOADER HERE -->
-          <!-- Add a section separator horizontal line with centered text -->
-          <div class="mt-6">
-            <div class="relative">
-              <div class="absolute inset-0 flex items-center">
-                <div class="w-full border-t border-gray-300"></div>
-              </div>
-              <div class="relative flex justify-center text-sm leading-5">
-                <span class="px-2 bg-white text-gray-500">
-                  Calculated Results
-                </span>
+          <div id="calculated-results">
+            <!-- Add a section separator horizontal line with centered text -->
+            <div class="mt-6">
+              <div class="relative">
+                <div class="absolute inset-0 flex items-center">
+                  <div class="w-full border-t border-gray-300"></div>
+                </div>
+                <div class="relative flex justify-center text-sm leading-5">
+                  <span class="px-2 bg-white text-gray-500">
+                    Calculated Results
+                  </span>
+                </div>
               </div>
             </div>
-          </div>
-          <!-- <!-1- LOADER -1-> -->
-          <!-- <div id="loading"> -->
-          <!--   <img src="img/loading.gif" alt=""> -->
-          <!-- </div> -->
+            <!-- <!-1- LOADER -1-> -->
+            <!-- <div id="loading"> -->
+            <!--   <img src="img/loading.gif" alt=""> -->
+            <!-- </div> -->
 
-          <!-- RESULTS HERE -->
-          <div id="results">
-            <div class="mt-6">
-              <label
-                for="monthly-payment"
-                class="block text-sm font-medium leading-5 text-gray-700"
-              >
-                Monthly Payment
-              </label>
-              <div class="mt-1 rounded-md shadow-sm">
-                <input
-                  id="monthly-payment"
-                  type="number"
-                  required
-                  class="bg-gray-200 appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md placeholder-gray-400 focus:outline-none focus:shadow-outline-blue focus:border-blue-300 transition duration-150 ease-in-out sm:text-sm sm:leading-5"
-                  disabled
-                />
+            <!-- RESULTS HERE -->
+            <div id="results">
+              <div class="mt-6">
+                <label
+                  for="monthly-payment"
+                  class="block text-sm font-medium leading-5 text-gray-700"
+                >
+                  Monthly Payment
+                </label>
+                <div class="mt-1 rounded-md shadow-sm">
+                  <input
+                    id="monthly-payment"
+                    type="number"
+                    required
+                    class="bg-gray-200 appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md placeholder-gray-400 focus:outline-none focus:shadow-outline-blue focus:border-blue-300 transition duration-150 ease-in-out sm:text-sm sm:leading-5"
+                    disabled
+                  />
+                </div>
               </div>
-            </div>
-            <div class="mt-6">
-              <label
-                for="total-payment"
-                class="block text-sm font-medium leading-5 text-gray-700"
-              >
-                Total Payment
-              </label>
-              <div class="mt-1 rounded-md shadow-sm">
-                <input
-                  id="total-payment"
-                  type="number"
-                  required
-                  class="bg-gray-200 appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md placeholder-gray-400 focus:outline-none focus:shadow-outline-blue focus:border-blue-300 transition duration-150 ease-in-out sm:text-sm sm:leading-5"
-                  disabled
-                />
+              <div class="mt-6">
+                <label
+                  for="total-payment"
+                  class="block text-sm font-medium leading-5 text-gray-700"
+                >
+                  Total Payment
+                </label>
+                <div class="mt-1 rounded-md shadow-sm">
+                  <input
+                    id="total-payment"
+                    type="number"
+                    required
+                    class="bg-gray-200 appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md placeholder-gray-400 focus:outline-none focus:shadow-outline-blue focus:border-blue-300 transition duration-150 ease-in-out sm:text-sm sm:leading-5"
+                    disabled
+                  />
+                </div>
               </div>
-            </div>
-            <div class="mt-6">
-              <label
-                for="total-interest"
-                class="block text-sm font-medium leading-5 text-gray-700"
-              >
-                Total Interest
-              </label>
-              <div class="mt-1 rounded-md shadow-sm">
-                <input
-                  id="total-interest"
-                  type="number"
-                  required
-                  class="bg-gray-200 appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md placeholder-gray-400 focus:outline-none focus:shadow-outline-blue focus:border-blue-300 transition duration-150 ease-in-out sm:text-sm sm:leading-5"
-                  disabled
-                />
+              <div class="mt-6">
+                <label
+                  for="total-interest"
+                  class="block text-sm font-medium leading-5 text-gray-700"
+                >
+                  Total Interest
+                </label>
+                <div class="mt-1 rounded-md shadow-sm">
+                  <input
+                    id="total-interest"
+                    type="number"
+                    required
+                    class="bg-gray-200 appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md placeholder-gray-400 focus:outline-none focus:shadow-outline-blue focus:border-blue-300 transition duration-150 ease-in-out sm:text-sm sm:leading-5"
+                    disabled
+                  />
+                </div>
               </div>
             </div>
           </div>

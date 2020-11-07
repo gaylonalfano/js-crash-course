@@ -1,3 +1,25 @@
+// === TOGGLE LOADER ANIMATION
+const toggleLoaderAnimation = () => {
+  // TODO Could consider adding className parameter and make this general toggle()
+  // const classList = document.getElementById("calculate-btn").classList;
+  document.getElementById("calculate-btn").classList.toggle("animate-pulse");
+};
+
+// === HIDE RESULTS
+// NOTE Want to hide the #calculated-results as a default
+const hideResultsDiv = () => {
+  // TODO Could maybe use hidden attribute instead and just toggle
+  const resultsDiv = document.getElementById("calculated-results");
+  resultsDiv.style.display = "none";
+};
+
+// === SHOW RESULTS
+const showResultsDiv = () => {
+  // TODO Could maybe use hidden attribute instead and just toggle
+  const resultsDiv = document.getElementById("calculated-results");
+  resultsDiv.style.display = "block";
+};
+
 // === CLEAR ERROR
 const clearError = () => {
   // Target new errorDiv and remove
@@ -7,6 +29,12 @@ const clearError = () => {
 // === SHOW ERROR w/ TAILWIND
 // NOTE Referencing: https://tailwindui.com/components/application-ui/feedback/alerts
 const showError = (errorMessage) => {
+  // Hide calculated results section in case already displayed
+  hideResultsDiv();
+
+  // Stop loader animation;
+  // toggleLoaderAnimation();
+
   // Let's target some elements so we can insert error at top
   const imageElement = document.querySelector("img");
   const headingDiv = imageElement.parentElement;
@@ -65,7 +93,7 @@ const showError = (errorMessage) => {
 // }
 
 // === CALCULATE RESULTS
-const calculateResults = (e) => {
+const calculateResults = () => {
   console.log("Calculating...");
   // Define some UI variables
   const loanAmountElement = document.getElementById("loan-amount");
@@ -97,17 +125,35 @@ const calculateResults = (e) => {
       calculatedMonthly * calculatedPayments -
       principal
     ).toFixed(2);
+
+    // Show the resultsDiv
+    showResultsDiv();
+
+    // Stop loader animation
+    toggleLoaderAnimation();
   } else {
     // calculatedMonthly isn't finite so have an error
     // NOTE Build the alert with JS rather than hide/unhide HTML
     showError("Please check your numbers.");
-  }
 
-  e.preventDefault();
+    // Stop loader animation so it doesn't keep going after error
+    toggleLoaderAnimation();
+  }
 };
 
-// Listen for form submission (Calculate)
+// === LISTEN FOR CLICK EVENT ON CALCULATE
 // NOTE Brad is targeting the <form> where I'm getting the <button>
-document
-  .getElementById("calculate-btn")
-  .addEventListener("click", calculateResults);
+// NOTE Don't want to call calculateResults right away. Need to delay for the loader.
+document.getElementById("calculate-btn").addEventListener("click", (e) => {
+  // Hide #calculated-results section since it'll stay visible after first click
+  hideResultsDiv();
+
+  // Start the loader spinner
+  toggleLoaderAnimation();
+
+  // Wait 2 seconds
+  setTimeout(calculateResults, 1500);
+
+  // Prevent default
+  e.preventDefault();
+});
