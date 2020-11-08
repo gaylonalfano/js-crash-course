@@ -105,6 +105,7 @@ const calculateResults = () => {
 
   // Calculate the results
   // NOTE Need to use parseFloat() to convert to type float
+  // FIXME Restrict input fields to round to 2 decimals (currently infinite 2.5555555555)
   const principal = parseFloat(loanAmountElement.value);
   const calculatedInterest = parseFloat(annualInterestElement.value) / 100 / 12;
   const calculatedPayments = parseFloat(yearsToRepayElement.value) * 12;
