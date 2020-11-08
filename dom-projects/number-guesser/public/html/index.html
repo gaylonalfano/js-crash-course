@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Number Guesser</title>
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/@tailwindcss/ui@latest/dist/tailwind-ui.min.css"
+    />
+    <!-- Hide results section until button loading is finished -->
+  </head>
+  <body>
+    <!--
+  Tailwind UI components require Tailwind CSS v1.8 and the @tailwindcss/ui plugin.
+  Read the documentation to get started: https://tailwindui.com/documentation
+-->
+    <div class="bg-white py-16 px-4 overflow-hidden sm:px-6 lg:px-8 lg:py-24">
+      <div class="relative max-w-xl mx-auto">
+        <svg
+          class="absolute left-full transform translate-x-1/2"
+          width="404"
+          height="404"
+          fill="none"
+          viewBox="0 0 404 404"
+        >
+          <defs>
+            <pattern
+              id="85737c0e-0916-41d7-917f-596dc7edfa27"
+              x="0"
+              y="0"
+              width="20"
+              height="20"
+              patternUnits="userSpaceOnUse"
+            >
+              <rect
+                x="0"
+                y="0"
+                width="4"
+                height="4"
+                class="text-gray-200"
+                fill="currentColor"
+              />
+            </pattern>
+          </defs>
+          <rect
+            width="404"
+            height="404"
+            fill="url(#85737c0e-0916-41d7-917f-596dc7edfa27)"
+          />
+        </svg>
+        <svg
+          class="absolute right-full bottom-0 transform -translate-x-1/2"
+          width="404"
+          height="404"
+          fill="none"
+          viewBox="0 0 404 404"
+        >
+          <defs>
+            <pattern
+              id="85737c0e-0916-41d7-917f-596dc7edfa27"
+              x="0"
+              y="0"
+              width="20"
+              height="20"
+              patternUnits="userSpaceOnUse"
+            >
+              <rect
+                x="0"
+                y="0"
+                width="4"
+                height="4"
+                class="text-gray-200"
+                fill="currentColor"
+              />
+            </pattern>
+          </defs>
+          <rect
+            width="404"
+            height="404"
+            fill="url(#85737c0e-0916-41d7-917f-596dc7edfa27)"
+          />
+        </svg>
+        <div class="text-center">
+          <h2
+            class="text-3xl leading-9 font-extrabold tracking-tight text-gray-900 sm:text-4xl sm:leading-10"
+          >
+            Number Guesser
+          </h2>
+          <p class="mt-4 text-lg leading-6 text-gray-500">
+            Pick any given range of numbers and select the number of attempts
+            allowed. Guess correctly and be a winner!
+          </p>
+        </div>
+        <div class="mt-8">
+          <form
+            action="#"
+            class="grid grid-cols-1 gap-y-6 sm:grid-cols-2 sm:gap-x-8"
+          >
+            <div>
+              <label
+                for="start_range"
+                class="block text-sm font-medium leading-5 text-gray-700"
+                >Start</label
+              >
+              <div class="mt-1 relative rounded-md shadow-sm">
+                <input
+                  id="start_range"
+                  class="form-input py-3 px-4 block w-full transition ease-in-out duration-150"
+                  type="number"
+                  value="1"
+                  min="1"
+                  max="100000"
+                />
+              </div>
+            </div>
+            <div>
+              <label
+                for="end_range"
+                class="block text-sm font-medium leading-5 text-gray-700"
+                >End</label
+              >
+              <div class="mt-1 relative rounded-md shadow-sm">
+                <input
+                  id="end_range"
+                  class="form-input py-3 px-4 block w-full transition ease-in-out duration-150"
+                  type="number"
+                  value="100"
+                  min="1"
+                  max="100000"
+                />
+              </div>
+            </div>
+            <div>
+              <label
+                for="number_of_attempts"
+                class="block text-sm font-medium leading-5 text-gray-700"
+                >How many attempts?</label
+              >
+              <select
+                id="number_of_attempts"
+                class="mt-1 relative form-select w-full py-3 px-4 block leading-6 border-gray-300 focus:outline-none focus:shadow-outline-blue focus:border-blue-300 sm:text-sm sm:leading-5"
+              >
+                <option>1</option>
+                <option>2</option>
+                <option selected>3</option>
+                <option>4</option>
+                <option>5</option>
+                <option>6</option>
+                <option>7</option>
+                <option>8</option>
+                <option>9</option>
+                <option>10</option>
+              </select>
+            </div>
+            <div class="sm:col-span-2">
+              <label
+                for="company"
+                class="block text-sm font-medium leading-5 text-gray-700"
+                >What's your guess?</label
+              >
+              <div class="mt-1 relative rounded-md shadow-sm">
+                <input
+                  id="company"
+                  class="form-input py-3 px-4 block w-full transition ease-in-out duration-150"
+                  type="number"
+                  placeholder="Enter your guess..."
+                  required
+                  min="1"
+                  max="100000"
+                />
+              </div>
+              <p class="mt-2 text-sm text-red-600" id="guess-error">
+                You must enter a value between the assigned range.
+              </p>
+            </div>
+            <div class="sm:col-span-2">
+              <span class="w-full inline-flex rounded-md shadow-sm">
+                <button
+                  type="button"
+                  class="w-full inline-flex items-center justify-center px-6 py-3 border border-transparent text-base leading-6 font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-500 focus:outline-none focus:border-indigo-700 focus:shadow-outline-indigo active:bg-indigo-700 transition ease-in-out duration-150"
+                >
+                  Get lucky!
+                </button>
+              </span>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </body>
+</html>
