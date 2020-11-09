@@ -87,25 +87,26 @@
           >
             Number Guesser
           </h2>
-          <p class="mt-4 text-lg leading-6 text-gray-500">
-            Pick any given range of numbers and select the number of attempts
-            allowed. Guess correctly and be a winner!
+          <p id="game_rules" class="mt-4 text-lg leading-6 text-gray-500">
+            Guess a number between <span id="min_range"></span> and
+            <span id="max_range"></span> correctly and be a winner! You have
+            <span id="attempts_remaining"></span> attempts remaining!
           </p>
         </div>
-        <div class="mt-8">
+        <div id="game" class="mt-8">
           <form
             action="#"
             class="grid grid-cols-1 gap-y-6 sm:grid-cols-2 sm:gap-x-8"
           >
             <div>
               <label
-                for="start_range"
+                for="min_range_input"
                 class="block text-sm font-medium leading-5 text-gray-700"
-                >Start</label
+                >Min Range</label
               >
               <div class="mt-1 relative rounded-md shadow-sm">
                 <input
-                  id="start_range"
+                  id="min_range_input"
                   class="form-input py-3 px-4 block w-full transition ease-in-out duration-150"
                   type="number"
                   value="1"
@@ -116,13 +117,13 @@
             </div>
             <div>
               <label
-                for="end_range"
+                for="max_range_input"
                 class="block text-sm font-medium leading-5 text-gray-700"
-                >End</label
+                >Max Range</label
               >
               <div class="mt-1 relative rounded-md shadow-sm">
                 <input
-                  id="end_range"
+                  id="max_range_input"
                   class="form-input py-3 px-4 block w-full transition ease-in-out duration-150"
                   type="number"
                   value="100"
@@ -155,13 +156,13 @@
             </div>
             <div class="sm:col-span-2">
               <label
-                for="company"
+                for="user_guess"
                 class="block text-sm font-medium leading-5 text-gray-700"
                 >What's your guess?</label
               >
               <div class="mt-1 relative rounded-md shadow-sm">
                 <input
-                  id="company"
+                  id="user_guess"
                   class="form-input py-3 px-4 block w-full transition ease-in-out duration-150"
                   type="number"
                   placeholder="Enter your guess..."
@@ -170,7 +171,7 @@
                   max="100000"
                 />
               </div>
-              <p class="mt-2 text-sm text-red-600" id="guess-error">
+              <p class="mt-2 text-sm text-red-600" id="guess_error">
                 You must enter a value between the assigned range.
               </p>
             </div>
@@ -179,6 +180,7 @@
                 <button
                   type="button"
                   class="w-full inline-flex items-center justify-center px-6 py-3 border border-transparent text-base leading-6 font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-500 focus:outline-none focus:border-indigo-700 focus:shadow-outline-indigo active:bg-indigo-700 transition ease-in-out duration-150"
+                  id="guess_btn"
                 >
                   Get lucky!
                 </button>
@@ -188,5 +190,6 @@
         </div>
       </div>
     </div>
+    <script src="public/js/app.js"></script>
   </body>
 </html>

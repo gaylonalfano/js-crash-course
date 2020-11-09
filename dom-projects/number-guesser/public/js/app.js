@@ -1,159 +1,142 @@
-// === TOGGLE LOADER ANIMATION
-const toggleLoaderAnimation = () => {
-  // TODO Could consider adding className parameter and make this general toggle()
-  // const classList = document.getElementById("calculate-btn").classList;
-  document.getElementById("calculate-btn").classList.toggle("animate-pulse");
+/*
+GAME FUNCTION:
+- Player must guess a number between min and max
+- Player gets a certain amount of guesses
+- Notify player of guesses remaining
+- Notify the player of the correct answer if lose
+- Let player choose to play again
+*/
+
+// ===== UI ELEMENTS
+const gameElement = document.getElementById("game");
+const gameRulesElement = document.getElementById("game_rules");
+const minRangeInput = document.getElementById("min_range_input");
+const minRangeSpan = document.getElementById("min_range");
+const maxRangeInput = document.getElementById("max_range_input");
+const maxRangeSpan = document.getElementById("max_range");
+const numOfAttemptsSelector = document.getElementById("number_of_attempts");
+const attemptsRemainingSpan = document.getElementById("attempts_remaining");
+const userGuessInput = document.getElementById("user_guess");
+const guessErrorMessage = document.getElementById("guess_error");
+const submitButton = document.getElementById("guess_btn");
+
+// ===== GAME VALUES
+let minRange,
+  maxRange,
+  guessValue,
+  winningNumber,
+  attemptsMade,
+  attemptsRemaining,
+  isGameActive = false;
+
+// ===== SET/INIT GAME VALUES
+// TODO Want to set/update the game values
+const initGameValues = () => {
+  // Retrieve game values and rules
+  minRange = minRangeInput.value;
+  maxRange = maxRangeInput.value;
+  guessValue = userGuessInput.value;
+  winningNumber = 2; // TODO Create fn for generating random number
+  attemptsMade = 0; // TODO Create fn for calculating attempts made
+  attemptsRemaining = numOfAttemptsSelector.value - attemptsMade;
 };
 
-// === HIDE RESULTS
-// NOTE Want to hide the #calculated-results as a default
-const hideResultsDiv = () => {
-  // TODO Could maybe use hidden attribute instead and just toggle
-  const resultsDiv = document.getElementById("calculated-results");
-  resultsDiv.style.display = "none";
+// TODO ?? ===== CALCULATE ATTEMPTS MADE
+
+// ===== DISABLE INPUTS WHILE GAME IS LIVE
+const disableInputs = () => {
+  // FIXME ? Need to do logic here or in main handler? Maybe could use a while loop?
+  console.log(`UI DISABLED. ${attemptsMade} attempts made.`);
+  minRangeInput.disabled = true;
+  minRangeInput.classList.toggle("bg-gray-200");
+  maxRangeInput.disabled = true;
+  maxRangeInput.classList.toggle("bg-gray-200");
+  numOfAttemptsSelector.disabled = true;
+  numOfAttemptsSelector.classList.toggle("bg-gray-200");
 };
 
-// === SHOW RESULTS
-const showResultsDiv = () => {
-  // TODO Could maybe use hidden attribute instead and just toggle
-  const resultsDiv = document.getElementById("calculated-results");
-  resultsDiv.style.display = "block";
+// ===== ASSIGN/UPDATE UI MIN/MAX TO GAME RULES TO BE DYNAMIC
+// NOTE These are the <span> elements inside the game rules up top
+// NOTE Need these to be reactive eventually when user changes the values
+// TODO ? Should I set the min/max props on <input> based on user input?
+const updateUiContent = () => {
+  // TODO Want to update the UI content as game rules and values change
+  minRangeSpan.textContent = minRange;
+  maxRangeSpan.textContent = maxRange;
+  attemptsRemainingSpan.textContent = attemptsRemaining;
 };
 
-// === CLEAR ERROR
-const clearError = () => {
-  // Target new errorDiv and remove
-  document.querySelector("#error-alert").remove();
+// ===== START/INIT GAME
+// TODO Thinking of consolidating a lot of the initializing into this function
+const initGame = () => {
+  initGameValues();
+  updateUiContent();
 };
 
-// === SHOW ERROR w/ TAILWIND
-// NOTE Referencing: https://tailwindui.com/components/application-ui/feedback/alerts
-const showError = (errorMessage) => {
-  // Hide calculated results section in case already displayed
-  hideResultsDiv();
-
-  // Stop loader animation;
-  // toggleLoaderAnimation();
-
-  // Let's target some elements so we can insert error at top
-  const imageElement = document.querySelector("img");
-  const headingDiv = imageElement.parentElement;
-
-  // == Now let's create a new error div using Tailwind's component code
-  const errorDiv = document.createElement("div");
-  // Assign this errorDiv with an ID so can target and remove later
-  errorDiv.id = "error-alert";
-  errorDiv.className = "rounded-md bg-red-50 p-4 mb-8";
-  // Let's fill in the HTML of this new error message div
-  errorDiv.innerHTML = `
-      <div class="flex">
-        <div class="flex-shrink-0">
-          <!-- Heroicon name: x-circle -->
-          <svg class="h-5 w-5 text-red-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
-            <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd" />
-          </svg>
-        </div>
-        <div class="ml-3">
-          <h3 class="text-sm leading-5 font-medium text-red-800">
-            ${errorMessage}
-          </h3>
-        </div>
-      </div>
-    </div>
-  `;
-
-  // Next, let's insert this new complete errorDiv into the DOM
-  headingDiv.insertBefore(errorDiv, imageElement);
-
-  // Clear error message after 3 seconds using setTimeout();
-  setTimeout(clearError, 3000);
-};
-
-// // === SHOW ERROR w/ BOOTSTRAP (BRAD`S)
-// const showError = (error) => {
-//   // == Create a div
-//   const errorDiv = document.createElement("div");
-//   // Add a CSS class for styling
-//   errorDiv.className = "alert alert-danger";
-//   // Create a new text node and pass the error message for the string
-//   const errorTextNode = document.createTextNode(error);
-//   // Append text node to our div
-//   errorDiv.appendChild(errorTextNode);
-
-//   // == Insert this new errorDiv into the DOM just above the main heading
-//   // First get the card and the main heading elements
-//   const card = document.querySelector(".card");
-//   const heading = document.querySelector(".heading");
-
-//   // Insert error above heading
-//   card.insertBefore(errorDiv, heading);
-
-//   // Make the error message disappear after 3 seconds with setTimeout()
-//   setTimeout(clearError, 3000);
-// }
-
-// === CALCULATE RESULTS
-const calculateResults = () => {
-  console.log("Calculating...");
-  // Define some UI variables
-  const loanAmountElement = document.getElementById("loan-amount");
-  const annualInterestElement = document.getElementById("annual-interest");
-  const yearsToRepayElement = document.getElementById("years-to-repay");
-  const monthlyPaymentElement = document.getElementById("monthly-payment");
-  const totalPaymentElement = document.getElementById("total-payment");
-  const totalInterestElement = document.getElementById("total-interest");
-
-  // Calculate the results
-  // NOTE Need to use parseFloat() to convert to type float
-  const principal = parseFloat(loanAmountElement.value);
-  const calculatedInterest = parseFloat(annualInterestElement.value) / 100 / 12;
-  const calculatedPayments = parseFloat(yearsToRepayElement.value) * 12;
-
-  // Compute monthly payments
-  const x = Math.pow(1 + calculatedInterest, calculatedPayments);
-  const calculatedMonthly = (principal * x * calculatedInterest) / (x - 1);
-
-  // Check that calculatedMonthly is a finite/positive number
-  if (isFinite(calculatedMonthly)) {
-    // Display our results in the fields
-    // NOTE Use .toFixed(2) to specify two decimal places
-    monthlyPaymentElement.value = calculatedMonthly.toFixed(2);
-    totalPaymentElement.value = (
-      calculatedMonthly * calculatedPayments
-    ).toFixed(2);
-    totalInterestElement.value = (
-      calculatedMonthly * calculatedPayments -
-      principal
-    ).toFixed(2);
-
-    // Show the resultsDiv
-    showResultsDiv();
-
-    // Stop loader animation
-    toggleLoaderAnimation();
+// ===== VALIDATE THE SUBMISSION
+// TODO Need to ensure we have enough attempts and the inputs are all compliant
+const validateAttempt = () => {
+  if (
+    // attemptsRemaining > 0 &&
+    // guessValue >= minRange &&
+    // guessValue <= maxRange
+    attemptsRemaining > 0
+  ) {
+    console.log("VALID");
   } else {
-    // calculatedMonthly isn't finite so have an error
-    // NOTE Build the alert with JS rather than hide/unhide HTML
-    showError("Please check your numbers.");
-
-    // Stop loader animation so it doesn't keep going after error
-    toggleLoaderAnimation();
+    console.log("INVALID");
   }
 };
 
-// === LISTEN FOR CLICK EVENT ON CALCULATE
-// NOTE Brad is targeting the <form> where I'm getting the <button>
-// NOTE Don't want to call calculateResults right away. Need to delay for the loader.
-document.getElementById("calculate-btn").addEventListener("click", (e) => {
-  // Hide #calculated-results section since it'll stay visible after first click
-  hideResultsDiv();
+// ===== IMPLEMENT HANDLER LOGIC
+// TODO Build submmit click handler logic
+const submitGuessAttempt = (e) => {
+  console.log(`${attemptsRemaining - attemptsMade}`);
+  console.log(`Attempts made: ${attemptsMade}`);
+  console.log(`Guess: ${guessValue}`);
+  console.log(`isGameActive: ${isGameActive}`);
+  // Check if isGameActive = true or false
+  if (!isGameActive) {
+    // This is the first successful click so lets make the game active/live
+    isGameActive = true;
+    // Initialize the game rules/values
+    initGameValues();
+    validateAttempt();
+    console.log(`Guess: ${guessValue}`);
+  }
 
-  // Start the loader spinner
-  toggleLoaderAnimation();
+  // Disable UI while game is active
+  // disableInputs();
 
-  // Wait 2 seconds
-  setTimeout(calculateResults, 1500);
+  // // === Capture attempts made
+  // if (attemptsMade === 0) {
+  //   // Start the game
+  //   initGameValues();
 
-  // Prevent default
+  //   // Disable UI if game is active (attempts made > 0)
+  //   disableInputs();
+
+  //   // Update UI Content
+  //   updateUiContent();
+  // }
+
+  // === Check that enough attempts remain
+  console.log(`Attempts remaining: ${attemptsRemaining}`);
+  console.log(`Attempts made: ${attemptsMade}`);
+  console.log(`Min: ${minRange}`);
+  console.log(`Max: ${maxRange}`);
+  // TODO Check that these are updated/latest
+  // TODO Need to have a function that retrieves latest values
+  // FIXME Need to disable the inputs while attemptsRemaining > 0
+  console.log(`Max Refresh: ${maxRangeInput.value}`);
+  console.log(`Game active? ${isGameActive}`);
   e.preventDefault();
-});
+};
+
+// ===== ADD LOAD EVENT LISTENER ON WINDOW TO INIT GAME
+// FIXME Do I need to init game values on load?
+document.addEventListener("DOMContentLoaded", initGame);
+
+// ===== ADD CLICK EVENT LISTENER TO BUTTON
+// NOTE User clicks to submit, need to validate inputs and then process
+submitButton.addEventListener("click", submitGuessAttempt);
