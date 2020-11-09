@@ -24,24 +24,90 @@ const submitButton = document.getElementById("guess_btn");
 let minRange,
   maxRange,
   guessValue,
-  winningNumber,
+  winningNumber = 2,
   attemptsMade,
   attemptsRemaining,
+  isValidAttempt = false,
   isGameActive = false;
+
+// ===== GET GAME VALUES
+const getGameValues = () => {
+  // Retrieve game values and rules
+  // NOTE Input values are all type string. Convert to number using parseInt()
+  minRange = parseInt(minRangeInput.value);
+  maxRange = parseInt(maxRangeInput.value);
+  console.log(`${typeof minRange}`);
+  console.log(`${typeof maxRange}`);
+  guessValue = parseInt(userGuessInput.value);
+  winningNumber = 2; // TODO Create fn for generating random number
+  // console.log(`attemptsMade: ${attemptsMade}`); // undefined
+  console.log(`attemptsMade undefined?: ${attemptsMade === undefined}`); // true
+  if (isNaN(attemptsMade) || attemptsMade === undefined) {
+    console.log(`attemptsMade BEFORE: ${attemptsMade}`); // undefined
+    console.log("attemptsMade is NaN! Setting to 0");
+    attemptsMade = 0;
+    console.log(`attemptsMade AFTER: ${attemptsMade}`); // 0
+  }
+  attemptsRemaining = parseInt(numOfAttemptsSelector.value) - attemptsMade;
+};
+// ===== VALIDATE THE SUBMISSION
+// TODO Need to ensure we have enough attempts and the inputs are all compliant
+const validateAttempt = () => {
+  // NOTE Using global isValidAttempt variable to manage state
+  // Retrieve user input/game values
+  getGameValues();
+
+  console.log(`guessValue: ${guessValue}`);
+
+  if (
+    guessValue >= minRange &&
+    guessValue <= maxRange &&
+    attemptsRemaining > 0
+  ) {
+    console.log(`Guess value: ${guessValue}`);
+    console.log("Guess is > minRange");
+    console.log("Guess is <= maxRange");
+    console.log(`Attempts remaining: ${attemptsRemaining}`);
+    isValidAttempt = true;
+    console.log(`isValidAttempt? ${isValidAttempt}`);
+  } else {
+    isValidAttempt = false;
+    console.log(`isValidAttempt? ${isValidAttempt}`);
+    guessErrorMessage.toggleAttribute("hidden");
+  }
+
+  // if (isGameActive) {
+  //   console.log("Game is ACTIVE");
+  // }
+
+  // // Check if it's valid
+  // if (
+  //   // attemptsRemaining > 0 &&
+  //   // guessValue >= minRange &&
+  //   // guessValue <= maxRange
+  //   attemptsRemaining > 0
+  // ) {
+  //   console.log("VALID");
+  // } else {
+  //   console.log("INVALID");
+  // }
+};
 
 // ===== SET/INIT GAME VALUES
 // TODO Want to set/update the game values
-const initGameValues = () => {
-  // Retrieve game values and rules
+const setGameValues = () => {
+  // Get and validate values
+  if (isValidAttempt && isGameActive) {
+    // TODO Set the values for the game, update UI, and disable input
+  }
+
+  // Set/initialize the game with configured values
   minRange = minRangeInput.value;
   maxRange = maxRangeInput.value;
   guessValue = userGuessInput.value;
   winningNumber = 2; // TODO Create fn for generating random number
-  attemptsMade = 0; // TODO Create fn for calculating attempts made
   attemptsRemaining = numOfAttemptsSelector.value - attemptsMade;
 };
-
-// TODO ?? ===== CALCULATE ATTEMPTS MADE
 
 // ===== DISABLE INPUTS WHILE GAME IS LIVE
 const disableInputs = () => {
@@ -66,44 +132,27 @@ const updateUiContent = () => {
   attemptsRemainingSpan.textContent = attemptsRemaining;
 };
 
-// ===== START/INIT GAME
-// TODO Thinking of consolidating a lot of the initializing into this function
-const initGame = () => {
-  initGameValues();
-  updateUiContent();
-};
-
-// ===== VALIDATE THE SUBMISSION
-// TODO Need to ensure we have enough attempts and the inputs are all compliant
-const validateAttempt = () => {
-  if (
-    // attemptsRemaining > 0 &&
-    // guessValue >= minRange &&
-    // guessValue <= maxRange
-    attemptsRemaining > 0
-  ) {
-    console.log("VALID");
-  } else {
-    console.log("INVALID");
-  }
-};
+// // ===== START/INIT GAME
+// // TODO Thinking of consolidating a lot of the initializing into this function
+// const initContentAndValues = () => {
+//   setGameValues();
+//   updateUiContent();
+// };
 
 // ===== IMPLEMENT HANDLER LOGIC
 // TODO Build submmit click handler logic
 const submitGuessAttempt = (e) => {
-  console.log(`${attemptsRemaining - attemptsMade}`);
-  console.log(`Attempts made: ${attemptsMade}`);
-  console.log(`Guess: ${guessValue}`);
-  console.log(`isGameActive: ${isGameActive}`);
-  // Check if isGameActive = true or false
-  if (!isGameActive) {
-    // This is the first successful click so lets make the game active/live
-    isGameActive = true;
-    // Initialize the game rules/values
-    initGameValues();
-    validateAttempt();
-    console.log(`Guess: ${guessValue}`);
-  }
+  // TODO Validate the inputs
+  validateAttempt();
+  // // Check if isGameActive = true or false
+  // if (!isGameActive) {
+  //   // This is the first successful click so lets make the game active/live
+  //   isGameActive = true;
+  //   // Initialize the game rules/values
+  //   setGameValues();
+  //   validateAttempt();
+  //   console.log(`Guess: ${guessValue}`);
+  // }
 
   // Disable UI while game is active
   // disableInputs();
@@ -111,7 +160,7 @@ const submitGuessAttempt = (e) => {
   // // === Capture attempts made
   // if (attemptsMade === 0) {
   //   // Start the game
-  //   initGameValues();
+  //   setGameValues();
 
   //   // Disable UI if game is active (attempts made > 0)
   //   disableInputs();
@@ -135,7 +184,19 @@ const submitGuessAttempt = (e) => {
 
 // ===== ADD LOAD EVENT LISTENER ON WINDOW TO INIT GAME
 // FIXME Do I need to init game values on load?
-document.addEventListener("DOMContentLoaded", initGame);
+// document.addEventListener("DOMContentLoaded", initGame);
+document.addEventListener("DOMContentLoaded", () => {
+  // Initialize Game rules UI
+  // === Load initial content
+  minRangeSpan.textContent = minRangeInput.value;
+  maxRangeSpan.textContent = maxRangeInput.value;
+  attemptsRemainingSpan.textContent = numOfAttemptsSelector.value;
+  // === Load initial game values
+  // Retrieve game values and rules
+  minRange = minRangeInput.value;
+  maxRange = maxRangeInput.value;
+  attemptsRemaining = numOfAttemptsSelector.value - attemptsMade;
+});
 
 // ===== ADD CLICK EVENT LISTENER TO BUTTON
 // NOTE User clicks to submit, need to validate inputs and then process
