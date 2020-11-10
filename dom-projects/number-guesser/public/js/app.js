@@ -21,43 +21,80 @@ const guessErrorMessage = document.getElementById("guess_error");
 const submitButton = document.getElementById("guess_btn");
 
 // ===== GAME VALUES
-let minRange,
-  maxRange,
-  guessValue,
-  winningNumber = 2,
-  attemptsMade,
-  attemptsRemaining,
-  isValidAttempt = false,
-  isGameActive = false;
+// Static variables
+let minRange;
+let maxRange;
+let winningNumber = 2; // TODO Create fn for generating random number
+let attemptsAllowed;
+
+// Dynamic variables:
+let guessValue;
+let attemptsMade;
+let attemptsRemaining; // undefined on init (or NaN if formula)
+let isValidAttempt = false;
+let isGameActive = false;
 
 // ===== GET GAME VALUES
+// FIXME Could consider changing this function to updateGameValues
 const getGameValues = () => {
+  console.log("GET GAME VALUES...");
   // Retrieve game values and rules
   // NOTE Input values are all type string. Convert to number using parseInt()
   minRange = parseInt(minRangeInput.value);
   maxRange = parseInt(maxRangeInput.value);
-  console.log(`${typeof minRange}`);
-  console.log(`${typeof maxRange}`);
+  // console.log(`${typeof minRange}`); // number
+  // console.log(`${typeof maxRange}`);
   guessValue = parseInt(userGuessInput.value);
-  winningNumber = 2; // TODO Create fn for generating random number
-  // console.log(`attemptsMade: ${attemptsMade}`); // undefined
-  console.log(`attemptsMade undefined?: ${attemptsMade === undefined}`); // true
+
+  // Update/set attemptsAllowed value
+  // NOTE This is static and is undefined on DOMContentLoaded init
+  attemptsAllowed = parseInt(numOfAttemptsSelector.value);
+  console.log(`attemptsAllowed: ${attemptsAllowed}`);
+  // if (isNaN(attemptsAllowed) || attemptsAllowed === undefined) {
+  //   console.log(`attemptsAllowed BEFORE setting: ${attemptsAllowed}`); // undefined
+  //   console.log("attemptsAllowed is NaN! Setting to 0");
+  //   attemptsAllowed = ;
+  //   console.log(`attemptsAllowed AFTER setting: ${attemptsAllowed}`); // 0
+  // }
+
+  // Update/set attemptsMade value
   if (isNaN(attemptsMade) || attemptsMade === undefined) {
-    console.log(`attemptsMade BEFORE: ${attemptsMade}`); // undefined
+    console.log(`attemptsMade BEFORE setting: ${attemptsMade}`); // undefined
     console.log("attemptsMade is NaN! Setting to 0");
     attemptsMade = 0;
-    console.log(`attemptsMade AFTER: ${attemptsMade}`); // 0
+    console.log(`attemptsMade AFTER setting: ${attemptsMade}`); // 0
   }
-  attemptsRemaining = parseInt(numOfAttemptsSelector.value) - attemptsMade;
+
+  // Update/set attemptsRemaining value
+  if (isNaN(attemptsRemaining) || attemptsRemaining === undefined) {
+    console.log(`attemptsRemaining BEFORE setting: ${attemptsRemaining}`); // undefined
+    console.log(
+      `attemptsRemaining is NaN! Setting to (${attemptsAllowed - attemptsMade})`
+    );
+    // Set initial value to equal attemptsAllowed
+    attemptsRemaining = attemptsAllowed;
+    // console.log(`Type: ${typeof attemptsRemaining}`); // number
+  } else {
+    // All subsequent values need to deduct attempts made
+    attemptsRemaining = attemptsAllowed - attemptsMade;
+    console.log(`attemptsRemaining AFTER setting: ${attemptsRemaining}`); // 0
+  }
+
+  // // FIXME Can't subtract attemptsMade as I really want to simply decrement by 1 --
+  // // NOTE attemptsRemaining will get decremented by 1 inside validateAttempt()
+  // attemptsRemaining = parseInt(numOfAttemptsSelector.value) - attemptsMade;
+  // console.log(`attemptsRemaining from getGameValues: ${attemptsRemaining}`);
 };
+
 // ===== VALIDATE THE SUBMISSION
 // TODO Need to ensure we have enough attempts and the inputs are all compliant
 const validateAttempt = () => {
-  // NOTE Using global isValidAttempt variable to manage state
+  // NOTE Using global isValidAttempt and isGameActive variables to manage state
   // Retrieve user input/game values
   getGameValues();
 
-  console.log(`guessValue: ${guessValue}`);
+  // FIXME Do I need to split up this validation logic to first check if game is active?
+  // Then check whether the user inputs are valid?
 
   if (
     guessValue >= minRange &&
@@ -65,32 +102,34 @@ const validateAttempt = () => {
     attemptsRemaining > 0
   ) {
     console.log(`Guess value: ${guessValue}`);
-    console.log("Guess is > minRange");
+    console.log("Guess is >= minRange");
     console.log("Guess is <= maxRange");
-    console.log(`Attempts remaining: ${attemptsRemaining}`);
+    // console.log(`VALID! attemptsRemaining: ${attemptsRemaining}`);
+
+    // Everything checks out so it's a valid attempt
     isValidAttempt = true;
-    console.log(`isValidAttempt? ${isValidAttempt}`);
+    console.log(`VALID! isValidAttempt? ${isValidAttempt}`);
+
+    // If everything checks out and we have attempts then game is active
+    isGameActive = true;
+    console.log(`isGameActive? ${isGameActive}`);
+
+    // Increase attemptsMade by 1 since this is a valid attempt
+    // attemptsMade += 1;
+    attemptsMade++;
+    console.log(`attemptsMade? ${attemptsMade}`);
+
+    // Update the global attemptsRemaining value by decrementing by 1
+    // FIXME Do I need this if I have attemptsRemaining - attemptsMade in getGameValues()?
+    // FIXME I believe yes...
+    // attemptsRemaining -= 1;
+    attemptsRemaining--;
+    console.log(`attemptsRemaing AFTER valid attempt: ${attemptsRemaining}`);
   } else {
     isValidAttempt = false;
-    console.log(`isValidAttempt? ${isValidAttempt}`);
+    console.log(`INVALID! isValidAttempt? ${isValidAttempt}`);
     guessErrorMessage.toggleAttribute("hidden");
   }
-
-  // if (isGameActive) {
-  //   console.log("Game is ACTIVE");
-  // }
-
-  // // Check if it's valid
-  // if (
-  //   // attemptsRemaining > 0 &&
-  //   // guessValue >= minRange &&
-  //   // guessValue <= maxRange
-  //   attemptsRemaining > 0
-  // ) {
-  //   console.log("VALID");
-  // } else {
-  //   console.log("INVALID");
-  // }
 };
 
 // ===== SET/INIT GAME VALUES
@@ -127,6 +166,8 @@ const disableInputs = () => {
 // TODO ? Should I set the min/max props on <input> based on user input?
 const updateUiContent = () => {
   // TODO Want to update the UI content as game rules and values change
+  // FIXME Do I call this on 'click' event? Maybe when first guess is submitted
+  // and we disable the UI inputs while active?
   minRangeSpan.textContent = minRange;
   maxRangeSpan.textContent = maxRange;
   attemptsRemainingSpan.textContent = attemptsRemaining;
@@ -170,10 +211,10 @@ const submitGuessAttempt = (e) => {
   // }
 
   // === Check that enough attempts remain
-  console.log(`Attempts remaining: ${attemptsRemaining}`);
+  console.log(
+    `SUBMIT. AFTER validateAttempt() attemptsRemaining: ${attemptsRemaining}`
+  );
   console.log(`Attempts made: ${attemptsMade}`);
-  console.log(`Min: ${minRange}`);
-  console.log(`Max: ${maxRange}`);
   // TODO Check that these are updated/latest
   // TODO Need to have a function that retrieves latest values
   // FIXME Need to disable the inputs while attemptsRemaining > 0
@@ -182,20 +223,13 @@ const submitGuessAttempt = (e) => {
   e.preventDefault();
 };
 
-// ===== ADD LOAD EVENT LISTENER ON WINDOW TO INIT GAME
+// ===== ADD LOAD EVENT LISTENER ON WINDOW TO INIT CONTENT
 // FIXME Do I need to init game values on load?
-// document.addEventListener("DOMContentLoaded", initGame);
 document.addEventListener("DOMContentLoaded", () => {
-  // Initialize Game rules UI
-  // === Load initial content
+  // === Load initial UI content
   minRangeSpan.textContent = minRangeInput.value;
   maxRangeSpan.textContent = maxRangeInput.value;
   attemptsRemainingSpan.textContent = numOfAttemptsSelector.value;
-  // === Load initial game values
-  // Retrieve game values and rules
-  minRange = minRangeInput.value;
-  maxRange = maxRangeInput.value;
-  attemptsRemaining = numOfAttemptsSelector.value - attemptsMade;
 });
 
 // ===== ADD CLICK EVENT LISTENER TO BUTTON
