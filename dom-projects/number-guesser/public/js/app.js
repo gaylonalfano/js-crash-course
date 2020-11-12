@@ -22,33 +22,61 @@ const submitButton = document.getElementById("guess_btn");
 
 // ===== GAME VALUES
 // Static variables
-let minRange;
-let maxRange;
-let winningNumber = 2; // TODO Create fn for generating random number
-let attemptsAllowed;
+// let minRange;
+// let maxRange;
+// let winningNumber = 2; // TODO Create fn for generating random number
+// let attemptsAllowed;
 
 // Dynamic variables:
 let guessValue;
-let attemptsMade;
-let attemptsRemaining; // undefined on init (or NaN if formula)
+// let attemptsMade;
+// let attemptsRemaining; // undefined on init (or NaN if formula)
 let isValidAttempt = false;
-let isGameActive = false;
+// let isGameActive = false;
 
-// ===== MANAGE GAME STATE
-// TODO Research this approach.
+// ===== MANAGE GAME STATE VIA OBJECT
+// FIXME Add default/init values or use some sort of setState() function?
+// FIXME Do I add ALL variables to this obj? Or leave guessValue and isValidAttempt as global?
+// FIXME Could consider adding 'guesses' Array property to store all guesses made
 const gameState = {
   isGameActive: false,
-  winningNumber,
-  minRange,
-  maxRange,
-  attemptsAllowed: 5,
-  attemptsMade: 1,
+  winningNumber: 2,
+  minRange: parseInt(minRangeInput.value),
+  maxRange: parseInt(maxRangeInput.value),
+  attemptsAllowed: parseInt(numOfAttemptsSelector.value),
+  attemptsMade: 0,
+  // userGuesses: [],
 };
 
-// Make attemptsRemaining a function of our state
-function attemptsRemainingState(state) {
+// ===== MAKE attemptsRemaining A FUNCTION OF OUR STATE
+const attemptsRemaining = (state) => {
   return state.attemptsAllowed - state.attemptsMade;
-}
+};
+
+// ===== SET GAME RULES CONTENT
+// NOTE This just sets the rules content. Still need to render
+const gameRulesContent = (state) => {
+  return `
+          <p id="game_rules" class="mt-4 text-lg leading-6 text-gray-500">
+            Guess a number between <span id="min_range">${
+              state.minRange
+            }</span> and
+            <span id="max_range">${
+              state.maxRange
+            }</span> correctly and be a winner! You have
+            <span id="attempts_remaining">${attemptsRemaining(
+              state
+            )}</span> attempts remaining!
+          </p>
+  `;
+};
+
+// ===== RENDER UI WITH UPDATED CONTENT
+// NOTE Ideally this can trigger on some sort of state 'change' event
+const renderGameRules = () => {
+  // Target the <p id=game_rules> element and update html
+  gameRulesElement.innerHTML = gameRulesContent(gameState);
+};
 
 // ===== GET GAME VALUES
 // FIXME Could consider changing this function to updateGameValues
@@ -148,20 +176,19 @@ const validateAttempt = () => {
   }
 };
 
-// ===== SET/INIT GAME VALUES
+// ===== SET GAME STATE
+// FIXME Should only update values that have changed. Maybe use a copy or localStorage?
 // TODO Want to set/update the game values
-const setGameValues = () => {
-  // Get and validate values
-  if (isValidAttempt && isGameActive) {
-    // TODO Set the values for the game, update UI, and disable input
+const setGameState = (state) => {
+  // Update any state properties that have been passed in
+  for (const key in state) {
+    if (state.hasOwnProperty(key)) {
+      // Update global gameState object
+      gameState[key] = state[key];
+    }
   }
-
-  // Set/initialize the game with configured values
-  minRange = minRangeInput.value;
-  maxRange = maxRangeInput.value;
-  guessValue = userGuessInput.value;
-  winningNumber = 2; // TODO Create fn for generating random number
-  attemptsRemaining = numOfAttemptsSelector.value - attemptsMade;
+  // FIXME Render here or elsewhere?
+  return renderGameRules();
 };
 
 // ===== DISABLE INPUTS WHILE GAME IS LIVE
@@ -247,6 +274,32 @@ document.addEventListener("DOMContentLoaded", () => {
   maxRangeSpan.textContent = maxRangeInput.value;
   attemptsRemainingSpan.textContent = numOfAttemptsSelector.value;
 });
+
+// ===== ADD CHANGE EVENT LISTENER MIN RANGE
+// NOTE Going to see if I can do the same but for the other input fields
+minRangeInput.addEventListener("change", (e) => {
+  setGameState({ minRange: e.target.value });
+});
+
+// ===== ADD CHANGE EVENT LISTENER MAX RANGE
+// NOTE Going to see if I can do the same but for the other input fields
+maxRangeInput.addEventListener("change", (e) => {
+  setGameState({ maxRange: e.target.value });
+});
+
+// ===== ADD CHANGE EVENT LISTENER TO ATTEMPTS SELECT LIST
+// NOTE I want to trigger a refresh of the UI with update values
+// NOTE Think there is DOM diffing option?
+// FIXME passing gameState doesn't work. What if I pass attemptsRemaining()?
+// numOfAttemptsSelector.addEventListener("change", setGameState(gameState));
+// NOTE You can capture the new selected value using e.target.value
+// numOfAttemptsSelector.addEventListener(
+//   "change",
+//   setGameState({ attemptsAllowed: this.event.target.value })
+// );
+numOfAttemptsSelector.addEventListener("change", (e) => {
+  setGameState({ attemptsAllowed: e.target.value });
+}); // WORKS!!!
 
 // ===== ADD CLICK EVENT LISTENER TO BUTTON
 // NOTE User clicks to submit, need to validate inputs and then process
