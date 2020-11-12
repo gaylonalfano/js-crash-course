@@ -34,6 +34,22 @@ let attemptsRemaining; // undefined on init (or NaN if formula)
 let isValidAttempt = false;
 let isGameActive = false;
 
+// ===== MANAGE GAME STATE
+// TODO Research this approach.
+const gameState = {
+  isGameActive: false,
+  winningNumber,
+  minRange,
+  maxRange,
+  attemptsAllowed: 5,
+  attemptsMade: 1,
+};
+
+// Make attemptsRemaining a function of our state
+function attemptsRemainingState(state) {
+  return state.attemptsAllowed - state.attemptsMade;
+}
+
 // ===== GET GAME VALUES
 // FIXME Could consider changing this function to updateGameValues
 const getGameValues = () => {
