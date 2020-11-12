@@ -73,9 +73,9 @@ const gameRulesContent = (state) => {
 
 // ===== RENDER UI WITH UPDATED CONTENT
 // NOTE Ideally this can trigger on some sort of state 'change' event
-const renderGameRules = () => {
+const renderGameRules = (state) => {
   // Target the <p id=game_rules> element and update html
-  gameRulesElement.innerHTML = gameRulesContent(gameState);
+  gameRulesElement.innerHTML = gameRulesContent(state);
 };
 
 // ===== GET GAME VALUES
@@ -188,7 +188,8 @@ const setGameState = (state) => {
     }
   }
   // FIXME Render here or elsewhere?
-  return renderGameRules();
+  // NOTE Looks like rendering here is best. Need to pass updated gameState obj.
+  return renderGameRules(gameState);
 };
 
 // ===== DISABLE INPUTS WHILE GAME IS LIVE
