@@ -48,31 +48,80 @@ const gameState = {
   // userGuesses: [],
 };
 
+loadEventListeners();
+
+// ===== LOAD EVENT LISTENERS FOR TIDINESS
+function loadEventListeners() {
+  // === ADD LOAD EVENT LISTENER ON WINDOW TO INIT CONTENT
+  // FIXME Do I need to init game values on load?
+  document.addEventListener("DOMContentLoaded", () => {
+    // === Load initial UI content
+    minRangeSpan.textContent = minRangeInput.value;
+    maxRangeSpan.textContent = maxRangeInput.value;
+    attemptsRemainingSpan.textContent = numOfAttemptsSelector.value;
+  });
+
+  // === ADD CHANGE EVENT LISTENER MIN RANGE
+  // NOTE Going to see if I can do the same but for the other input fields
+  minRangeInput.addEventListener("change", (e) => {
+    setGameState({ minRange: parseInt(e.target.value) });
+  });
+
+  // === ADD CHANGE EVENT LISTENER MAX RANGE
+  // NOTE Going to see if I can do the same but for the other input fields
+  maxRangeInput.addEventListener("change", (e) => {
+    setGameState({ maxRange: parseInt(e.target.value) });
+  });
+
+  // === ADD CHANGE EVENT LISTENER TO ATTEMPTS SELECT LIST
+  // NOTE I want to trigger a refresh of the UI with update values
+  // NOTE Think there is DOM diffing option?
+  // FIXME passing gameState doesn't work. What if I pass attemptsRemaining()?
+  // numOfAttemptsSelector.addEventListener("change", setGameState(gameState));
+  // NOTE You can capture the new selected value using e.target.value
+  // numOfAttemptsSelector.addEventListener(
+  //   "change",
+  //   setGameState({ attemptsAllowed: this.event.target.value })
+  // );
+  numOfAttemptsSelector.addEventListener("change", (e) => {
+    setGameState({ attemptsAllowed: parseInt(e.target.value) });
+  }); // WORKS!!!
+
+  // === ADD CLICK EVENT LISTENER TO BUTTON
+  // NOTE User clicks to submit, need to validate inputs and then process
+  submitButton.addEventListener("click", submitGuessAttempt);
+}
+
 // ===== MAKE attemptsRemaining A FUNCTION OF OUR STATE
-const attemptsRemaining = (state) => {
+function attemptsRemaining(state) {
   console.log("COMPUTING attemptsRemaining...");
   return state.attemptsAllowed - state.attemptsMade;
-};
+}
 
 // ===== MAKE isGameActive A FUNCTION OF OUR STATE
-const isGameActive = (state) => {
+// FIXME ? Should I embed the enabling/disabling of inputs here or keep separate?
+// Or should I use after updating state after valid attempt?
+function isGameActive(state) {
   console.log("COMPUTING isGameActive...");
   if (state.attemptsMade === 0) {
     // Inactive, so user can configure
+    // enableInputs(state);
     return false;
   } else if (attemptsRemaining(state) > 0) {
     // Active, so user cannot change rules
+    // disableInputs(state);
     return true;
   } else if (attemptsRemaining(state) === 0) {
     // User is out of attempts
+    // enableInputs(state);
     return false;
   }
   // TODO Need to add another return true for a catch-all?
-};
+}
 
 // ===== SET GAME RULES CONTENT
 // NOTE This just sets the rules content. Still need to render
-const gameRulesContent = (state) => {
+function gameRulesContent(state) {
   // FIXME Should only re-calculate attemptsRemaining on button 'click'
   // Could consider creating a var to check if button click or value changed
   // FIXME Need to consider ternary operator for attempts vs attempt
@@ -89,20 +138,20 @@ const gameRulesContent = (state) => {
             )}</span> attempts remaining!
           </p>
   `;
-};
+}
 
 // ===== RENDER UI WITH UPDATED CONTENT
 // NOTE Ideally this can trigger on some sort of state 'change' event
-const renderGameRules = (state) => {
+function renderGameRules(state) {
   console.log("RENDERING UI...");
   // Target the <p id=game_rules> element and update html
   gameRulesElement.innerHTML = gameRulesContent(state);
-};
+}
 
 // ===== SET GAME STATE
 // FIXME Should only update values that have changed. Maybe use a copy or localStorage?
 // TODO Want to set/update the game values
-const setGameState = (state) => {
+function setGameState(state) {
   console.log("SETTING GAME STATE...");
   // Update any state properties that have been passed in
   for (const key in state) {
@@ -114,88 +163,33 @@ const setGameState = (state) => {
 
   // NOTE Looks like rendering here is best. Need to pass updated gameState obj.
   return renderGameRules(gameState);
-};
+}
 
 // ===== DISABLE INPUTS WHILE GAME ACTIVE
-const disableInputs = (state) => {
-  if (state.isGameActive) {
-    console.log(`UI DISABLED. Game is ACTIVE...`);
-    minRangeInput.disabled = true;
-    minRangeInput.classList.toggle("bg-gray-200");
-    maxRangeInput.disabled = true;
-    maxRangeInput.classList.toggle("bg-gray-200");
-    numOfAttemptsSelector.disabled = true;
-    numOfAttemptsSelector.classList.toggle("bg-gray-200");
-  }
-};
+function disableInputs() {
+  console.log(`UI DISABLED. Game is ACTIVE...`);
+  minRangeInput.disabled = true;
+  minRangeInput.classList.add("bg-gray-200");
+  maxRangeInput.disabled = true;
+  maxRangeInput.classList.add("bg-gray-200");
+  numOfAttemptsSelector.disabled = true;
+  numOfAttemptsSelector.classList.add("bg-gray-200");
+}
 
 // ===== ENABLE INPUTS WHILE GAME INACTIVE
-const enableInputs = (state) => {
-  if (!state.isGameActive) {
-    console.log(`UI ENABLED. Game is INACTIVE...`);
-    minRangeInput.disabled = false;
-    // minRangeInput.classList.toggle("bg-gray-200");
-    maxRangeInput.disabled = false;
-    // maxRangeInput.classList.toggle("bg-gray-200");
-    numOfAttemptsSelector.disabled = false;
-    // numOfAttemptsSelector.classList.toggle("bg-gray-200");
-  }
-};
-
-// // ===== GET GAME VALUES
-// // FIXME Could consider changing this function to updateGameValues
-// const getGameValues = () => {
-//   console.log("GET GAME VALUES...");
-//   // Retrieve game values and rules
-//   // NOTE Input values are all type string. Convert to number using parseInt()
-//   minRange = parseInt(minRangeInput.value);
-//   maxRange = parseInt(maxRangeInput.value);
-//   // console.log(`${typeof minRange}`); // number
-//   // console.log(`${typeof maxRange}`);
-//   guessValue = parseInt(userGuessInput.value);
-
-//   // Update/set attemptsAllowed value
-//   // NOTE This is static and is undefined on DOMContentLoaded init
-//   attemptsAllowed = parseInt(numOfAttemptsSelector.value);
-//   console.log(`attemptsAllowed: ${attemptsAllowed}`);
-//   // if (isNaN(attemptsAllowed) || attemptsAllowed === undefined) {
-//   //   console.log(`attemptsAllowed BEFORE setting: ${attemptsAllowed}`); // undefined
-//   //   console.log("attemptsAllowed is NaN! Setting to 0");
-//   //   attemptsAllowed = ;
-//   //   console.log(`attemptsAllowed AFTER setting: ${attemptsAllowed}`); // 0
-//   // }
-
-//   // Update/set attemptsMade value
-//   if (isNaN(attemptsMade) || attemptsMade === undefined) {
-//     console.log(`attemptsMade BEFORE setting: ${attemptsMade}`); // undefined
-//     console.log("attemptsMade is NaN! Setting to 0");
-//     attemptsMade = 0;
-//     console.log(`attemptsMade AFTER setting: ${attemptsMade}`); // 0
-//   }
-
-//   // Update/set attemptsRemaining value
-//   if (isNaN(attemptsRemaining) || attemptsRemaining === undefined) {
-//     console.log(`attemptsRemaining BEFORE setting: ${attemptsRemaining}`); // undefined
-//     console.log(
-//       `attemptsRemaining is NaN! Setting to (${attemptsAllowed - attemptsMade})`
-//     );
-//     // Set initial value to equal attemptsAllowed
-//     attemptsRemaining = attemptsAllowed;
-//     // console.log(`Type: ${typeof attemptsRemaining}`); // number
-//   } else {
-//     // All subsequent values need to deduct attempts made
-//     attemptsRemaining = attemptsAllowed - attemptsMade;
-//     console.log(`attemptsRemaining AFTER setting: ${attemptsRemaining}`); // 0
-//   }
-
-//   // // FIXME Can't subtract attemptsMade as I really want to simply decrement by 1 --
-//   // // NOTE attemptsRemaining will get decremented by 1 inside validateAttempt()
-//   // attemptsRemaining = parseInt(numOfAttemptsSelector.value) - attemptsMade;
-//   // console.log(`attemptsRemaining from getGameValues: ${attemptsRemaining}`);
-// };
+// NOTE Using add/remove() instead of toggle() so they don't always fire
+function enableInputs() {
+  console.log(`UI ENABLED. Game is INACTIVE...`);
+  minRangeInput.disabled = false;
+  minRangeInput.classList.remove("bg-gray-200");
+  maxRangeInput.disabled = false;
+  maxRangeInput.classList.remove("bg-gray-200");
+  numOfAttemptsSelector.disabled = false;
+  numOfAttemptsSelector.classList.remove("bg-gray-200");
+}
 
 // ===== VALIDATE THE SUBMISSION WITH STATE
-const validateAttempt = () => {
+function validateAttempt() {
   // NOTE Using global isValidAttempt, guessValue and gameState.isGameActive
   console.log("VALIDATING ATTEMPT...");
 
@@ -206,7 +200,7 @@ const validateAttempt = () => {
     `attemptsRemaining BEFORE validating: ${attemptsRemaining(gameState)}`
   );
 
-  // FIXME Do I need to split up this validation logic to first check if game is active?
+  // FIXME ? Do I need to split up this validation logic to first check if game is active?
   // Then check whether the user inputs are valid? I believe so...
   // === IS GAME ACTIVE AND/OR ATTEMPTS REMAINING?
   // console.log(`isGameActive BEFORE updating state: ${isGameActive(gameState)}`);
@@ -221,7 +215,8 @@ const validateAttempt = () => {
       console.log("FIRST ATTEMPT. CAN CONTINUE VALIDATING...");
     } else {
       // Game is truly INVALID
-      console.log("GAME IS INVALID! STOPPING VALIDATING...");
+      console.log("GAME IS INACTIVE! STOPPING VALIDATING...");
+      enableInputs();
       return;
     }
   }
@@ -232,9 +227,11 @@ const validateAttempt = () => {
     attemptsRemaining(gameState) > 0
   ) {
     console.log(`VALID ATTEMPT. guessValue: ${guessValue}`);
-    // console.log("Guess is >= minRange");
-    // console.log("Guess is <= maxRange");
-    // console.log(`VALID! attemptsRemaining: ${attemptsRemaining}`);
+    // Remove invalid attempt error message if present
+    if (!guessErrorMessage.hidden) {
+      // Remove/hide error message
+      guessErrorMessage.hidden = true;
+    }
 
     // Everything checks out so it's a valid attempt
     isValidAttempt = true;
@@ -253,9 +250,8 @@ const validateAttempt = () => {
     console.log(
       `isGameActive AFTER updating state: ${isGameActive(gameState)}`
     );
-    isGameActive(gameState)
-      ? disableInputs(gameState)
-      : enableInputs(gameState);
+    // Check the updated gameState and toggle UI inputs
+    isGameActive(gameState) ? disableInputs() : enableInputs();
     console.log("gameState AFTER updating state...");
     console.table(gameState);
 
@@ -267,82 +263,13 @@ const validateAttempt = () => {
   } else {
     isValidAttempt = false;
     console.log(`INVALID! isValidAttempt: ${isValidAttempt}`);
-    guessErrorMessage.toggleAttribute("hidden");
+    guessErrorMessage.hidden = false;
   }
-};
+}
 
-// // ===== VALIDATE THE SUBMISSION W/O STATE
-// // TODO Need to ensure we have enough attempts and the inputs are all compliant
-// const validateAttempt = () => {
-//   // NOTE Using global isValidAttempt and isGameActive variables to manage state
-//   // Retrieve user input/game values
-//   getGameValues();
-
-//   // FIXME Do I need to split up this validation logic to first check if game is active?
-//   // Then check whether the user inputs are valid?
-
-//   if (
-//     guessValue >= minRange &&
-//     guessValue <= maxRange &&
-//     attemptsRemaining > 0
-//   ) {
-//     console.log(`Guess value: ${guessValue}`);
-//     console.log("Guess is >= minRange");
-//     console.log("Guess is <= maxRange");
-//     // console.log(`VALID! attemptsRemaining: ${attemptsRemaining}`);
-
-//     // Everything checks out so it's a valid attempt
-//     isValidAttempt = true;
-//     console.log(`VALID! isValidAttempt? ${isValidAttempt}`);
-
-//     // If everything checks out and we have attempts then game is active
-//     isGameActive = true;
-//     console.log(`isGameActive? ${isGameActive}`);
-
-//     // Increase attemptsMade by 1 since this is a valid attempt
-//     // attemptsMade += 1;
-//     attemptsMade++;
-//     console.log(`attemptsMade? ${attemptsMade}`);
-
-//     // Update the global attemptsRemaining value by decrementing by 1
-//     // FIXME Do I need this if I have attemptsRemaining - attemptsMade in getGameValues()?
-//     // FIXME I believe yes...
-//     // attemptsRemaining -= 1;
-//     attemptsRemaining--;
-//     console.log(`attemptsRemaing AFTER valid attempt: ${attemptsRemaining}`);
-//   } else {
-//     isValidAttempt = false;
-//     console.log(`INVALID! isValidAttempt? ${isValidAttempt}`);
-//     guessErrorMessage.toggleAttribute("hidden");
-//   }
-// };
-
-// ===== GET GAME STATE
-// FIXME Needed? gameState is global...
-
-// ===== ASSIGN/UPDATE UI MIN/MAX TO GAME RULES TO BE DYNAMIC
-// NOTE These are the <span> elements inside the game rules up top
-// NOTE Need these to be reactive eventually when user changes the values
-// TODO ? Should I set the min/max props on <input> based on user input?
-const updateUiContent = () => {
-  // TODO Want to update the UI content as game rules and values change
-  // FIXME Do I call this on 'click' event? Maybe when first guess is submitted
-  // and we disable the UI inputs while active?
-  minRangeSpan.textContent = minRange;
-  maxRangeSpan.textContent = maxRange;
-  attemptsRemainingSpan.textContent = attemptsRemaining;
-};
-
-// // ===== START/INIT GAME
-// // TODO Thinking of consolidating a lot of the initializing into this function
-// const initContentAndValues = () => {
-//   setGameValues();
-//   updateUiContent();
-// };
-
-// ===== IMPLEMENT HANDLER LOGIC
+// ===== CLICK EVENT SUBMIT ATTEMPT HANDLER
 // TODO Build submmit click handler logic
-const submitGuessAttempt = (e) => {
+function submitGuessAttempt(e) {
   // Disable/Enable the inputs UI if the game is active/inactive
   // FIXME Do I need to add this in validateAttempt or before in main click handler?
   // gameState.isGameActive ? disableInputs(gameState) : enableInputs(gameState);
@@ -385,43 +312,4 @@ const submitGuessAttempt = (e) => {
   // console.log(`Max Refresh: ${maxRangeInput.value}`);
   // console.log(`Game active? ${gameState.isGameActive}`);
   e.preventDefault();
-};
-
-// ===== ADD LOAD EVENT LISTENER ON WINDOW TO INIT CONTENT
-// FIXME Do I need to init game values on load?
-document.addEventListener("DOMContentLoaded", () => {
-  // === Load initial UI content
-  minRangeSpan.textContent = minRangeInput.value;
-  maxRangeSpan.textContent = maxRangeInput.value;
-  attemptsRemainingSpan.textContent = numOfAttemptsSelector.value;
-});
-
-// ===== ADD CHANGE EVENT LISTENER MIN RANGE
-// NOTE Going to see if I can do the same but for the other input fields
-minRangeInput.addEventListener("change", (e) => {
-  setGameState({ minRange: parseInt(e.target.value) });
-});
-
-// ===== ADD CHANGE EVENT LISTENER MAX RANGE
-// NOTE Going to see if I can do the same but for the other input fields
-maxRangeInput.addEventListener("change", (e) => {
-  setGameState({ maxRange: parseInt(e.target.value) });
-});
-
-// ===== ADD CHANGE EVENT LISTENER TO ATTEMPTS SELECT LIST
-// NOTE I want to trigger a refresh of the UI with update values
-// NOTE Think there is DOM diffing option?
-// FIXME passing gameState doesn't work. What if I pass attemptsRemaining()?
-// numOfAttemptsSelector.addEventListener("change", setGameState(gameState));
-// NOTE You can capture the new selected value using e.target.value
-// numOfAttemptsSelector.addEventListener(
-//   "change",
-//   setGameState({ attemptsAllowed: this.event.target.value })
-// );
-numOfAttemptsSelector.addEventListener("change", (e) => {
-  setGameState({ attemptsAllowed: parseInt(e.target.value) });
-}); // WORKS!!!
-
-// ===== ADD CLICK EVENT LISTENER TO BUTTON
-// NOTE User clicks to submit, need to validate inputs and then process
-submitButton.addEventListener("click", submitGuessAttempt);
+}
