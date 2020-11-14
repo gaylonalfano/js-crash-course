@@ -188,6 +188,37 @@ function enableInputs() {
   numOfAttemptsSelector.classList.remove("bg-gray-200");
 }
 
+// ===== GAME OVER SCENARIOS (WIN OR LOSE)
+function handleGameOver(isWin) {
+  // isWin: Boolean and we'll base color on that
+  let color;
+  isWin === true ? (color = "green") : (color = "red");
+  // Disable inputs UI regardless of win or lose
+  disableInputs();
+  // Disable the input since the game is over
+  userGuessInput.disabled = true;
+  // Change border color
+  // userGuessInput.style.borderColor = "green";
+  userGuessInput.classList.add(`bg-${color}-200`);
+  // Replace UI game rules with a winning message
+  if (isWin === true) {
+    gameRulesElement.innerHTML = `<h3>You won! ${
+      gameState.winningNumber
+    } is correct! You guessed correctly in ${gameState.attemptsMade} ${
+      gameState.attemptsMade === 1 ? "attempt!" : "attempts!"
+    }`;
+    gameRulesElement.classList.add(`text-${color}-600`);
+  } else {
+    gameRulesElement.innerHTML = `<h3>You lost. ${gameState.winningNumber} is the winning number. Better luck next time!`;
+    gameRulesElement.classList.add(`text-${color}-600`);
+  }
+
+  // Change button text to "Play again?"
+  submitButton.textContent = "Play again?";
+
+  // TODO Add an event listener for
+}
+
 // ===== VALIDATE THE SUBMISSION WITH STATE
 function validateAttempt() {
   // NOTE Using global isValidAttempt, guessValue and gameState.isGameActive
@@ -260,6 +291,24 @@ function validateAttempt() {
     console.log(
       `attemptsRemaing AFTER valid attempt: ${attemptsRemaining(gameState)}`
     );
+
+    // Check if it's the winning number (i.e., guessValue === winningNumber)
+    // If so, then make the borderColor "green" or "red" if incorrect.
+    if (guessValue === gameState.winningNumber) {
+      handleGameOver(true);
+    } else {
+      // Wrong guess
+      // Check if any attempts remaining
+      if (attemptsRemaining(gameState) === 0) {
+        handleGameOver(false);
+      } else {
+        // Wrong guess but still have attempts remaining
+        // Change border color red
+        userGuessInput.classList.add("bg-red-200");
+        // Clear the input
+        userGuessInput.value = "";
+      }
+    }
   } else {
     isValidAttempt = false;
     console.log(`INVALID! isValidAttempt: ${isValidAttempt}`);
@@ -288,8 +337,7 @@ function submitGuessAttempt(e) {
 
   // Disable UI while game is active
   // disableInputs();
-
-  // // === Capture attempts made
+  // === Capture attempts made
   // if (attemptsMade === 0) {
   //   // Start the game
   //   setGameValues();
