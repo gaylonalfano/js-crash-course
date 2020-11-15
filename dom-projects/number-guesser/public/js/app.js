@@ -40,7 +40,9 @@ let isValidAttempt = false;
 // FIXME Could consider adding 'guesses' Array property to store all guesses made
 const gameState = {
   // isGameActive: false,
-  winningNumber: 2,
+  // winningNumber: generateWinningNumber(gameState),
+  // winningNumber: generateWinningNumber(gameState.minRange, gameState.maxRange),
+  winningNumber: 0,
   minRange: parseInt(minRangeInput.value),
   maxRange: parseInt(maxRangeInput.value),
   attemptsAllowed: parseInt(numOfAttemptsSelector.value),
@@ -134,6 +136,23 @@ function isGameActive(state) {
     return false;
   }
   // TODO Need to add another return true for a catch-all?
+}
+
+// ===== MAKE generateWinningNumber A FUNCTION OF OUR STATE
+// FIXME ? Add a property on state or no? I believe yes...
+// UPDATE -
+function generateWinningNumber(state) {
+  console.log("GENERATING WINNING NUMBER...");
+  // FIXME ? Do I pass state as the arg or min, max?
+  const minRange = state.minRange;
+  const maxRange = state.maxRange;
+
+  // Compute a random number integer between these values
+  const winningNumber =
+    Math.floor(Math.random() * (maxRange - minRange + 1)) + minRange;
+  console.log(`winningNumber is: ${winningNumber}`);
+
+  return winningNumber;
 }
 
 // ===== SET GAME RULES CONTENT
@@ -273,6 +292,7 @@ function validateAttempt() {
     }
   }
 
+  // Validate the user's inputs
   if (
     guessValue >= gameState.minRange &&
     guessValue <= gameState.maxRange &&
@@ -288,6 +308,13 @@ function validateAttempt() {
     // Everything checks out so it's a valid attempt
     isValidAttempt = true;
     console.log(`VALID ATTEMPT. isValidAttempt: ${isValidAttempt}`);
+
+    // Generate the winning number based on rules if valid and first attempt
+    if (isValidAttempt && gameState.attemptsMade === 0) {
+      // NOTE Not sure if I should have state as param or min, max
+      // Update state with our winningNumber
+      setGameState({ winningNumber: generateWinningNumber(gameState) });
+    }
 
     // Time to update our gameState using our helper
     // console.log(`gameState BEFORE: ${Object.entries(gameState)}`);
@@ -326,7 +353,7 @@ function validateAttempt() {
         // Wrong guess but still have attempts remaining
         // Change border color red
         userGuessInput.classList.add("bg-red-200");
-        // Clear the input
+        // Clear the input for the user
         userGuessInput.value = "";
       }
     }
