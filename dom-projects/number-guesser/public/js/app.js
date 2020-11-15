@@ -53,7 +53,7 @@ loadEventListeners();
 // ===== LOAD EVENT LISTENERS FOR TIDINESS
 function loadEventListeners() {
   // === ADD LOAD EVENT LISTENER ON WINDOW TO INIT CONTENT
-  // FIXME Do I need to init game values on load?
+  // FIXME ? Do I need to init game values on load?
   document.addEventListener("DOMContentLoaded", () => {
     // === Load initial UI content
     minRangeSpan.textContent = minRangeInput.value;
@@ -90,6 +90,23 @@ function loadEventListeners() {
   // === ADD CLICK EVENT LISTENER TO BUTTON
   // NOTE User clicks to submit, need to validate inputs and then process
   submitButton.addEventListener("click", submitGuessAttempt);
+
+  // ===== ADD MOUSEDOWN EVENT LISTENER FOR PLAY AGAIN
+  // NOTE User can click the Play again? button to reset/reload the page
+  // Need to use event delegation since class is added after initial load
+  // Attach listener to a parent element (e.g., the 'game' form element)
+  game.addEventListener("mousedown", (e) => {
+    // NOTE When gameOver() we add play-again class to our submitButton
+    // Check whether 'play-again' class has been added to submitButton
+    if (e.target.classList.contains("play-again")) {
+      console.log("MOUSEDOWN EVENT button has play-again class!");
+      // Clear the gameRulesContent otherwise it shows up before the full reload
+      // FIXME Could consider adding a "loading..."
+      gameRulesElement.innerHTML = "Resetting game...";
+      // Reload/reset the entire game
+      window.location.reload();
+    }
+  });
 }
 
 // ===== MAKE attemptsRemaining A FUNCTION OF OUR STATE
@@ -122,22 +139,30 @@ function isGameActive(state) {
 // ===== SET GAME RULES CONTENT
 // NOTE This just sets the rules content. Still need to render
 function gameRulesContent(state) {
-  // FIXME Should only re-calculate attemptsRemaining on button 'click'
-  // Could consider creating a var to check if button click or value changed
-  // FIXME Need to consider ternary operator for attempts vs attempt
-  return `
-          <p id="game_rules" class="mt-4 text-lg leading-6 text-gray-500">
-            Guess a number between <span id="min_range">${
+  // FIXME Currently have to maintain the same code in two places (here and index.html)
+  // TODO ? Do I need to use 'return'?
+  const rulesContent = `
+            <p id="game_rules" class="mt-4 text-lg leading-6 text-gray-500">
+            Guess a number between
+            <span id="min_range" class="font-medium text-gray-900">${
               state.minRange
             }</span> and
-            <span id="max_range">${
+            <span id="max_range" class="font-medium text-gray-900">${
               state.maxRange
-            }</span> correctly and be a winner! You have
-            <span id="attempts_remaining">${attemptsRemaining(
-              state
-            )}</span> attempts remaining!
+            }</span>
+            correctly and be a winner!<br /><br />
+            You have
+            <span
+              id="attempts_remaining"
+              class="font-medium text-gray-900"
+            >${attemptsRemaining(state)}</span>
+            ${
+              attemptsRemaining(state) === 1 ? "attempt" : "attempts"
+            } remaining!
           </p>
   `;
+
+  return rulesContent;
 }
 
 // ===== RENDER UI WITH UPDATED CONTENT
@@ -189,7 +214,7 @@ function enableInputs() {
 }
 
 // ===== GAME OVER SCENARIOS (WIN OR LOSE)
-function handleGameOver(isWin) {
+function gameOver(isWin) {
   // isWin: Boolean and we'll base color on that
   let color;
   isWin === true ? (color = "green") : (color = "red");
@@ -202,21 +227,23 @@ function handleGameOver(isWin) {
   userGuessInput.classList.add(`bg-${color}-200`);
   // Replace UI game rules with a winning message
   if (isWin === true) {
+    // FIXME Use textContent instead of innerHTML
     gameRulesElement.innerHTML = `<h3>You won! ${
       gameState.winningNumber
     } is correct! You guessed correctly in ${gameState.attemptsMade} ${
       gameState.attemptsMade === 1 ? "attempt!" : "attempts!"
     }`;
-    gameRulesElement.classList.add(`text-${color}-600`);
+    gameRulesElement.classList.add(`text-${color}-600`, "font-medium");
   } else {
     gameRulesElement.innerHTML = `<h3>You lost. ${gameState.winningNumber} is the winning number. Better luck next time!`;
-    gameRulesElement.classList.add(`text-${color}-600`);
+    gameRulesElement.classList.add(`text-${color}-600`, "font-medium");
   }
 
   // Change button text to "Play again?"
   submitButton.textContent = "Play again?";
 
-  // TODO Add an event listener for
+  // Add a new class to our button so we can later target it for 'mousedown' event
+  submitButton.classList.add("play-again");
 }
 
 // ===== VALIDATE THE SUBMISSION WITH STATE
@@ -230,12 +257,6 @@ function validateAttempt() {
   console.log(
     `attemptsRemaining BEFORE validating: ${attemptsRemaining(gameState)}`
   );
-
-  // FIXME ? Do I need to split up this validation logic to first check if game is active?
-  // Then check whether the user inputs are valid? I believe so...
-  // === IS GAME ACTIVE AND/OR ATTEMPTS REMAINING?
-  // console.log(`isGameActive BEFORE updating state: ${isGameActive(gameState)}`);
-  // isGameActive(gameState); // false on first attempt
 
   // Update guessValue with input value, otherwise it's undefined
   guessValue = parseInt(userGuessInput.value);
@@ -295,12 +316,12 @@ function validateAttempt() {
     // Check if it's the winning number (i.e., guessValue === winningNumber)
     // If so, then make the borderColor "green" or "red" if incorrect.
     if (guessValue === gameState.winningNumber) {
-      handleGameOver(true);
+      gameOver(true);
     } else {
       // Wrong guess
       // Check if any attempts remaining
       if (attemptsRemaining(gameState) === 0) {
-        handleGameOver(false);
+        gameOver(false);
       } else {
         // Wrong guess but still have attempts remaining
         // Change border color red
